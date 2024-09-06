@@ -89,7 +89,7 @@
               </li>
 
               <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('category.index') }}" class="nav-link {{ (request()->segment(1) == 'category') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-th-list"></i>
                   <p>Kategori</p>
                 </a>
