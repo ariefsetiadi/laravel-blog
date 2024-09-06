@@ -8,6 +8,8 @@ use App\Http\Requests\CategoryRequest;
 
 use App\Models\Category;
 
+use Str;
+
 class CategoryController extends Controller
 {
     public function index()
@@ -32,6 +34,7 @@ class CategoryController extends Controller
         $category                   =   new Category;
         $category->category_name    =   $request->category_name;
         $category->status           =   $request->status;
+        $category->slug             =   Str::slug($request->category_name);
         $category->save();
 
         return response()->json(['messages' => 'Kategori berhasil ditambah']);
@@ -49,6 +52,7 @@ class CategoryController extends Controller
         $data = array(
             'category_name' =>  $request->category_name,
             'status'        =>  $request->status,
+            'slug'          =>  Str::slug($request->category_name),
         );
 
         Category::findOrFail($request->category_id)->update($data);

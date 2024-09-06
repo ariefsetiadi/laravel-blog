@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('category_name')->unique();
             $table->boolean('status')->default(true);
+            $table->string('slug');
             $table->timestamps();
         });
     }
