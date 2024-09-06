@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 use Auth;
 use Hash;
-use Validator;
 
 use App\Models\User;
 
