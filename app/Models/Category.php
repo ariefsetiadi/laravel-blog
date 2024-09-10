@@ -14,4 +14,9 @@ class Category extends Model
         'status',
         'slug',
     ];
+
+    public function content()
+    {
+        return $this->hasMany(Article::class);
+    }
 }

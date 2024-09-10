@@ -23,7 +23,7 @@
             <!-- /.card-header -->
             <div class="card-body">
               <div class="table-responsive">
-                <table id="userTable" class="table table-bordered table-hover">
+                <table id="userTable" class="table table-bordered table-hover" width="100%">
                   <thead>
                     <tr>
                       <th>No.</th>

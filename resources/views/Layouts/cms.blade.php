@@ -66,7 +66,7 @@
           <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
               <li class="nav-item">
-                <a href="{{ route('home') }}" class="nav-link {{ (request()->segment(1) == 'home') ? 'active' : '' }}">
+                <a href="{{ route('home') }}" class="nav-link {{ (request()->segment(2) == 'home') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-home"></i>
                   <p>Beranda</p>
                 </a>
@@ -82,21 +82,21 @@
               </li>
 
               <li class="nav-item">
-                <a href="{{ route('user.index') }}" class="nav-link {{ (request()->segment(1) == 'user') ? 'active' : '' }}">
+                <a href="{{ route('user.index') }}" class="nav-link {{ (request()->segment(2) == 'user') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-users"></i>
                   <p>User</p>
                 </a>
               </li>
 
               <li class="nav-item">
-                <a href="{{ route('category.index') }}" class="nav-link {{ (request()->segment(1) == 'category') ? 'active' : '' }}">
+                <a href="{{ route('category.index') }}" class="nav-link {{ (request()->segment(2) == 'category') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-th-list"></i>
                   <p>Kategori</p>
                 </a>
               </li>
 
               <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('article.index') }}" class="nav-link {{ (request()->segment(2) == 'article') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-file"></i>
                   <p>Artikel</p>
                 </a>
