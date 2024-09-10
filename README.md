@@ -8,7 +8,7 @@
 git clone https://github.com/ariefsetiadi/boilerplate-nodejs.git
 ```
 
--   Intall Dependencies
+-   Install Dependencies
 
 ```bash
 composer install
