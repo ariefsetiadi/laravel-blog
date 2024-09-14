@@ -1,8 +1,15 @@
+/database/migrations/2024_09_13_215043_create_sessions_table.php
+/database/migrations/2024_09_13_220124_create_page_views_table.php
+/app/Models/PageView.php
+/app/Models/Session.php
+/app/Http/Middleware/TrackSession.php
+
 /.phpunit.cache
 /node_modules
 /public/build
 /public/hot
 /public/storage
+/public/uploads
 /storage/*.key
 /vendor
 .env

@@ -8,6 +8,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ArticleController;
 
+use App\Http\Controllers\Guest\DashboardController;
+use App\Http\Controllers\Guest\ArticleController as GuestArticleController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,9 +22,10 @@ use App\Http\Controllers\ArticleController;
 |
 */
 
-Route::get('/', function () {
-    // return view('welcome');
-    return redirect()->route('login');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::prefix('article')->group(function () {
+    Route::get('/', [GuestArticleController::class, 'index'])->name('guest.article.index');
+    Route::get('/read/{year}/{month}/{slug}', [GuestArticleController::class, 'read'])->name('guest.article.read');
 });
 
 Route::middleware(['guest'])->group(function () {

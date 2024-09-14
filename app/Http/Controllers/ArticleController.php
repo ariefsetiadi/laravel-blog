@@ -39,7 +39,7 @@ class ArticleController extends Controller
                         return $button;
                     }
                 })->editColumn('status', function($data) {
-                    return $data->status == TRUE ? '<span class="badge badge-success">Publish</span>' : '<span class="badge badge-warning">Draft</span>';
+                    return $data->status == TRUE ? '<span class="badge badge-success">Publish</span>' : '<span class="badge badge-danger">Draft</span>';
                 })->editColumn('updated_at', function($data) {
                     Carbon::setLocale('id');
 
