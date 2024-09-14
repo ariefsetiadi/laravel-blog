@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\PageView;
+use App\Models\Session;
 
 class ArticleController extends Controller
 {
@@ -32,21 +34,47 @@ class ArticleController extends Controller
 
     public function read($year, $month, $slug)
     {
+        $query  =   Article::whereYear('articles.created_at', $year)
+                            ->whereMonth('articles.created_at', $month)
+                            ->where('articles.slug', $slug)
+                            ->first();
+
+        if (!$query) {
+            return redirect()->route('dashboard');
+        }
+
+        // Insert or update view Article based on session
+        $sessionId = request()->cookie('session_id');
+        PageView::create([
+            'session_id' => $sessionId,
+            'article_id' => $query->id,
+            'view_at' => now(),
+        ]);
+
         $article    =   Article::join('users', 'users.id', 'articles.created_by')
                                 ->join('categories', 'categories.id', 'articles.category_id')
+                                ->leftJoin('page_views', 'page_views.article_id', 'articles.id')
                                 ->select([
                                     'articles.id', 'articles.title', 'articles.category_id', 'articles.thumbnail', 'articles.content', 'articles.slug', 'articles.created_at',
                                     'users.name as userName',
                                     'categories.category_name'
                                 ])
+                                ->selectRaw('COUNT(page_views.id) as totalView')
                                 ->whereYear('articles.created_at', $year)
                                 ->whereMonth('articles.created_at', $month)
                                 ->where('articles.slug', $slug)
+                                ->groupBy([
+                                    'articles.id',
+                                    'articles.title',
+                                    'articles.category_id',
+                                    'articles.thumbnail',
+                                    'articles.content',
+                                    'articles.slug',
+                                    'articles.created_at',
+                                    'users.name',
+                                    'categories.category_name'
+                                ])
                                 ->first();
-
-        if (!$article) {
-            return redirect()->route('dashboard');
-        }
 
         $data['title']      =   $article->title;
         $data['article']    =   $article;

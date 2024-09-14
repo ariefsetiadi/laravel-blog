@@ -19,7 +19,7 @@
               <div class="meta-top">
                 <ul>
                   <li class="d-flex align-items-center"><i class="bi bi-clock"></i><time datetime="article->created_at">{{ \Carbon\Carbon::parse($article->created_at)->translatedFormat('d F Y') }}</time></li>
-                  <li class="d-flex align-items-center"><i class="bi bi-eye"></i>120 kali dibaca</li>
+                  <li class="d-flex align-items-center"><i class="bi bi-eye"></i>{{ $article->totalView > 0 ? $article->totalView : '0' }} kali dibaca</li>
                 </ul>
               </div>
               <!-- End meta top -->
