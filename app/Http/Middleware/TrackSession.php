@@ -63,6 +63,10 @@ class TrackSession
 
     protected function getCountryFromIP($ip)
     {
+        if ($ip === '127.0.0.1' || $ip === '::1') {
+            return 'Unknown';
+        }
+
         return Location::get($ip)->countryName ?? 'Unknown';
     }
 }

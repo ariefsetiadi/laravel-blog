@@ -30,11 +30,20 @@ class DashboardController extends Controller
         $data['second']     =   $query->slice(4, 3);
         $data['third']      =   $query->slice(7, 3);
         $data['trendings']  =   Article::join('users', 'users.id', 'articles.created_by')
+                                        ->join('page_views', 'page_views.article_id', 'articles.id')
                                         ->where('articles.status', true)
                                         ->select([
                                             'articles.title', 'articles.slug', 'articles.created_at',
                                             'users.name',
                                         ])
+                                        ->selectRaw('COUNT(page_views.id) as totalView')
+                                        ->groupBy([
+                                            'articles.title',
+                                            'articles.slug',
+                                            'articles.created_at',
+                                            'users.name',
+                                        ])
+                                        ->orderBy('totalView', 'desc')
                                         ->orderBy('articles.created_at', 'desc')
                                         ->take(5)
                                         ->get();

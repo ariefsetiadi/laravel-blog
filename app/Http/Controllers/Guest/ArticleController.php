@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Guest;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Services\PageViewService;
+
 use App\Models\User;
 use App\Models\Article;
 use App\Models\Category;
@@ -13,6 +15,13 @@ use App\Models\Session;
 
 class ArticleController extends Controller
 {
+    protected $pageViewService;
+
+    public function __construct(PageViewService $pageViewService)
+    {
+        $this->pageViewService  =   $pageViewService;
+    }
+
     public function index()
     {
         $articles   =   Article::join('users', 'users.id', 'articles.created_by')
@@ -27,7 +36,22 @@ class ArticleController extends Controller
 
         $data['title']      =   'Semua Artikel';
         $data['articles']   =   $articles;
-        $data['populars']   =   Article::where('status', true)->orderBy('created_at', 'desc')->take(5)->get();
+        $data['populars']   =   Article::join('page_views', 'page_views.article_id', 'articles.id')
+                                        ->where('articles.status', true)
+                                        ->select([
+                                            'articles.title', 'articles.thumbnail', 'articles.slug', 'articles.created_at',
+                                        ])
+                                        ->selectRaw('COUNT(page_views.id) as totalView')
+                                        ->groupBy([
+                                            'articles.title',
+                                            'articles.thumbnail',
+                                            'articles.slug',
+                                            'articles.created_at',
+                                        ])
+                                        ->orderBy('totalView', 'desc')
+                                        ->orderBy('articles.created_at', 'desc')
+                                        ->take(5)
+                                        ->get();
 
         return view('Guest.Article.index', $data);
     }
@@ -44,12 +68,7 @@ class ArticleController extends Controller
         }
 
         // Insert or update view Article based on session
-        $sessionId = request()->cookie('session_id');
-        PageView::create([
-            'session_id' => $sessionId,
-            'article_id' => $query->id,
-            'view_at' => now(),
-        ]);
+        $this->pageViewService->trackPageView($query->id);
 
         $article    =   Article::join('users', 'users.id', 'articles.created_by')
                                 ->join('categories', 'categories.id', 'articles.category_id')
