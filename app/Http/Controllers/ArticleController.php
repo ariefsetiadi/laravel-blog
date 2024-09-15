@@ -34,9 +34,11 @@ class ArticleController extends Controller
             return datatables()->of($articles)
                 ->addColumn('action', function($data) {
                     if ($data->userId == Auth::user()->id) {
-                        $button =   '<a href="'.route('article.edit', $data->id).'" class="btnEdit btn btn-warning">Edit</a>';
+                        if (Auth::user()->can('Edit Artikel')) {
+                            $button =   '<a href="'.route('article.edit', $data->id).'" class="btnEdit btn btn-warning">Edit</a>';
 
-                        return $button;
+                            return $button;
+                        }
                     }
                 })->editColumn('status', function($data) {
                     return $data->status == TRUE ? '<span class="badge badge-success">Publish</span>' : '<span class="badge badge-danger">Draft</span>';

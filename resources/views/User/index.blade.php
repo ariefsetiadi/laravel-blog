@@ -16,9 +16,11 @@
         <div class="col-12">
           <div class="card">
             <div class="card-header">
+              @can('Tambah User')
               <button type="button" class="btn btn-primary" id="btnAdd">
                 Tambah
               </button>
+              @endcan
             </div>
             <!-- /.card-header -->
             <div class="card-body">
@@ -29,6 +31,7 @@
                       <th>No.</th>
                       <th>Nama Lengkap</th>
                       <th>Email</th>
+                      <th>Role</th>
                       <th>Status</th>
                       <th>#</th>
                     </tr>
@@ -73,6 +76,17 @@
                   <label>Email</label>
                   <input type="text" name="email" id="email" class="form-control" placeholder="Email">
                   <div class="text-danger" id="email_error"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label>Status</label>
+                  <select name="role" id="role" class="form-control">
+                    <option disabled selected>-- Pilih Role --</option>
+                    @foreach($roles as $role)
+                      <option value="{{ $role->id }}">{{ $role->name }}</option>
+                    @endforeach
+                  </select>
+                  <div class="text-danger" id="role_error"></div>
                 </div>
 
                 <div class="form-group mb-3">
@@ -206,7 +220,13 @@
 						data: 'email',
 						name: 'email',
             className: 'text-center',
-						width: '20%',
+						width: '15%',
+					},
+          {
+						data: 'roleName',
+						name: 'roleName',
+            className: 'text-center',
+						width: '15%',
 					},
 					{
 						data: 'status',
@@ -239,6 +259,7 @@
         // Remove Error Message
         $('#name_error').text("");
         $('#email_error').text("");
+        $('#role_error').text("");
         $('#is_active_error').text("");
 			});
 
@@ -260,6 +281,7 @@
 						$('#user_id').val(html.data.id);
 						$('#name').val(html.data.name);
 						$('#email').val(html.data.email);
+						$('#role').val(html.data.role_id);
 						$('#is_active').val(html.data.is_active);
 
             // Delete class is-invalid
@@ -269,6 +291,7 @@
             // Remove Error Message
             $('#name_error').text("");
             $('#email_error').text("");
+            $('#role_error').text("");
             $('#is_active_error').text("");
 					}
 				});
@@ -308,6 +331,7 @@
 				if ($('#btnSave').text() == 'Simpan') {
 					$('#name_error').text();
 					$('#email_error').text();
+					$('#role_error').text();
 					$('#is_active_error').text();
 
 					$.ajax({
@@ -357,6 +381,7 @@
 				if ($('#btnSave').text() == 'Update') {
 					$('#name_error').text();
 					$('#email_error').text();
+					$('#role_error').text();
 					$('#is_active_error').text();
 
 					$.ajax({

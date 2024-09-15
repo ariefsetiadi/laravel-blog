@@ -24,6 +24,7 @@ class UserRequest extends FormRequest
         return [
             'name'      =>  'required|min:3|max:255|regex:/^[a-zA-Z0-9\s.,]+$/',
             'email'     =>  'required|email|max:255|unique:users,email,' . $this->user_id,
+            'role'      =>  'required|exists:roles,id',
             'is_active' =>  'required|in:0,1',
         ];
     }
@@ -39,6 +40,8 @@ class UserRequest extends FormRequest
             'email.email'           =>  'Email tidak valid',
             'email.max'             =>  'Email maksimal 255 karakter',
             'email.unique'          =>  'Email sudah digunakan',
+            'role.required'         =>  'Role wajib dipilih',
+            'role.exists'           =>  'Role tidak valid',
             'is_active.required'    =>  'Status wajib dipilih',
             'is_active.in'          =>  'Status tidak valid',
         ];

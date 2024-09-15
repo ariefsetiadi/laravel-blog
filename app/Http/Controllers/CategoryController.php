@@ -18,9 +18,11 @@ class CategoryController extends Controller
         if (request()->ajax()) {
             return datatables()->of(Category::orderBy('id')->get())
                 ->addColumn('action', function($data) {
-                    $button =   '<button type="button" id="'.$data->id.'" class="btnEdit btn btn-warning">Edit</button>';
+                    if (Auth::user()->can('Edit Kategori')) {
+                        $button =   '<button type="button" id="'.$data->id.'" class="btnEdit btn btn-warning">Edit</button>';
 
-                    return $button;
+                        return $button;
+                    }
                 })->editColumn('status', function($data) {
                     return $data->status == TRUE ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Nonaktif</span>';
                 })->rawColumns(['action', 'status'])->addIndexColumn()->make(true);

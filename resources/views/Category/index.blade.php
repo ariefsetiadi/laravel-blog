@@ -16,9 +16,11 @@
         <div class="col-12">
           <div class="card">
             <div class="card-header">
+							@can('Tambah Kategori')
               <button type="button" class="btn btn-primary" id="btnAdd">
                 Tambah
               </button>
+							@endcan
             </div>
             <!-- /.card-header -->
             <div class="card-body">

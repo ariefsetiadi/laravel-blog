@@ -74,33 +74,41 @@
 
               <li class="nav-header">DATA</li>
 
+              @can('List Role')
               <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('role.index') }}" class="nav-link {{ (request()->segment(2) == 'role') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-sitemap"></i>
                   <p>Role</p>
                 </a>
               </li>
+              @endcan
 
+              @can('List User')
               <li class="nav-item">
                 <a href="{{ route('user.index') }}" class="nav-link {{ (request()->segment(2) == 'user') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-users"></i>
                   <p>User</p>
                 </a>
               </li>
+              @endcan
 
+              @can('List Kategori')
               <li class="nav-item">
                 <a href="{{ route('category.index') }}" class="nav-link {{ (request()->segment(2) == 'category') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-th-list"></i>
                   <p>Kategori</p>
                 </a>
               </li>
+              @endcan
 
+              @can('List Artikel')
               <li class="nav-item">
                 <a href="{{ route('article.index') }}" class="nav-link {{ (request()->segment(2) == 'article') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-file"></i>
                   <p>Artikel</p>
                 </a>
               </li>
+              @endcan
 
               <li class="nav-header"></li>
 
