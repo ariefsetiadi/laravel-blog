@@ -3,35 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
+use Auth;
+
+use App\Services\UserService;
+use App\Services\RolePermissionService;
 
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\ResetPasswordRequest;
 
-use Auth;
-use Hash;
-
-use App\Models\User;
-use Spatie\Permission\Models\Role;
-
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserService $userService,
+        protected RolePermissionService $rolePermissionService,
+    ) { }
+
     public function index()
     {
         $data['title']  =   'List User';
-        $data['roles']  =   Role::get();
+        $data['roles']  =   $this->rolePermissionService->getAllRole();
 
         if (request()->ajax()) {
-            $user   =   User::leftJoin('model_has_roles', 'model_has_roles.model_id', 'users.id')
-                            ->leftJoin('roles', 'roles.id', 'model_has_roles.role_id')
-                            ->select([
-                                'users.*',
-                                'roles.name as roleName',
-                            ])
-                            ->orderBy('users.id')
-                            ->get();
+            $users  =   $this->userService->getAllUserWithRole();
 
-            return datatables()->of($user)
+            return datatables()->of($users['data'])
                 ->addColumn('action', function($data) {
                     if ($data->id != Auth::user()->id) {
                         if (Auth::user()->can(['Edit User', 'Reset Password User'])) {
@@ -55,86 +51,38 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        DB::beginTransaction();
+        $result =   $this->userService->saveUser($request);
 
-        try {
-            $user               =   new User;
-            $user->name         =   $request->name;
-            $user->is_active    =   $request->is_active;
-            $user->email        =   strtolower($request->email);
-            $user->password     =   Hash::make('Pass12345');
-            $user->save();
-
-            $role   =   Role::findOrFail($request->role);
-            $user->syncRoles($role);
-
-            DB::commit();
-            return response()->json(['messages' => 'User berhasil ditambah']);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            // return response()->json(['errors' => $th->getMessage()], 500);
-            return response()->json(['errors' => 'User gagal ditambah']);
-        }
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 
     public function edit($id)
     {
-        $user   =   User::leftJoin('model_has_roles', 'model_has_roles.model_id', 'users.id')
-                        ->select([
-                            'users.*',
-                            'model_has_roles.role_id',
-                            'model_has_roles.model_id',
-                        ])
-                        ->where('users.id', $id)
-                        ->first();
+        $user   =   $this->userService->getUserWithRoleById($id);
 
-        return response()->json(['data' => $user]);
+        return response()->json(['data' => $user['data']]);
     }
 
     public function update(UserRequest $request)
     {
-        DB::beginTransaction();
+        $result =   $this->userService->updateUser($request);
 
-        try {
-            $user   =   User::findOrFail($request->user_id);
-
-            if ($user && $user->id == Auth::user()->id) {
-                return response()->json(['success' => false, 'messages' => 'User tidak dapat diupdate']);
-            } else {
-                $data = array(
-                    'name'      =>  $request->name,
-                    'email'     =>  strtolower($request->email),
-                    'is_active' =>  $request->is_active,
-                );
-        
-                User::findOrFail($request->user_id)->update($data);
-
-                $role   =   Role::findOrFail($request->role);
-                $user->syncRoles($role);
-
-                DB::commit();
-                return response()->json(['success' => true, 'messages' => 'User berhasil diupdate']);
-            }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            // return response()->json(['errors' => $th->getMessage()], 500);
-            return response()->json(['errors' => 'User gagal diupdate']);
-        }
+        return response()->json([
+                'success'   =>  $result['success'],
+                'messages'  =>  $result['message'],
+            ]);
     }
 
     public function resetPassword(ResetPasswordRequest $request)
     {
-        $user   =   User::findOrFail($request->userReset_id);
+        $result =   $this->userService->resetPassword($request);
 
-        if ($user && $user->id == Auth::user()->id) {
-            return response()->json(['success' => false, 'messages' => 'Password User tidak dapat direset']);
-        } else {
-            $arr = array(
-                'password'  =>  Hash::make($request->password),
-            );
-            User::findOrFail($request->userReset_id)->update($arr);
-
-            return response()->json(['success' => true, 'messages' => 'Password User berhasil direset']);
-        }
+        return response()->json([
+                'success'   =>  $result['success'],
+                'messages'  =>  $result['message'],
+            ]);
     }
 }

@@ -36,7 +36,7 @@
             <div class="form-group select2-purple mb-3">
               <label>Permission</label>
               <select class="select2" multiple="multiple" id="permission" name="permission[]" data-dropdown-css-class="select2-purple" data-placeholder="Pilih Permission" style="width: 100%;">
-                @foreach($permissions as $row)
+                @foreach($permissions['data'] as $row)
                   <option value="{{ $row->id }}" {{ $role ? (in_array($row->id, $rolePermissions) ? 'selected' : '') : '' }}>{{ $row->name }}</option>
                 @endforeach
               </select>
@@ -88,18 +88,30 @@
 						},
 
 						success: function(res) {
-							toastr.options =
-							{
-								"closeButton" : true,
-								"progressBar" : false,
-								"preventDuplicates": true,
-								"timeOut": "1500",
-								"positionClass": "toast-top-center"
+							if (res.success == true) {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "1500",
+									"positionClass": "toast-top-center"
+								}
+								toastr.options.onHidden = function () {
+									window.location.href = "{{ route('role.index') }}";
+								}
+								toastr.success(res.messages);
+							} else {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+								}
+								toastr.error(res.messages);
 							}
-              toastr.options.onHidden = function () {
-								window.location.href = "{{ route('role.index') }}";
-							}
-							toastr.success(res.messages);
 						},
 
 						error: function(reject) {
@@ -133,18 +145,30 @@
 						},
 
 						success: function(res) {
-							toastr.options =
-							{
-								"closeButton" : true,
-								"progressBar" : false,
-								"preventDuplicates": true,
-								"timeOut": "1500",
-								"positionClass": "toast-top-center"
+							if (res.success == true) {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "1500",
+									"positionClass": "toast-top-center"
+								}
+								toastr.options.onHidden = function () {
+									window.location.href = "{{ route('role.index') }}";
+								}
+								toastr.success(res.messages);
+							} else {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+								}
+								toastr.error(res.messages);
 							}
-              toastr.options.onHidden = function () {
-								window.location.href = "{{ route('role.index') }}";
-							}
-							toastr.success(res.messages);
 						},
 
 						error: function(reject) {

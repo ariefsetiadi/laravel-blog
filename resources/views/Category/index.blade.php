@@ -216,21 +216,37 @@
 						},
 
 						success: function(res) {
-							setTimeout(function() {
-								$('#categoryForm')[0].reset();
-								$('#categoryModal').modal('hide');
-								$('#categoryTable').DataTable().ajax.reload();
-							});
+              if (res.success == true) {
+                setTimeout(function() {
+                  $('#categoryForm')[0].reset();
+									$('#categoryModal').modal('hide');
+									$('#categoryTable').DataTable().ajax.reload();
+                });
 
-							toastr.options =
-							{
-								"closeButton" : true,
-								"progressBar" : false,
-								"preventDuplicates": true,
-								"timeOut": "3000",
-								"positionClass": "toast-top-center"
-							}
-							toastr.success(res.messages);
+                toastr.options =
+                {
+                  "closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+                }
+                toastr.success(res.messages);
+              } else {
+                toastr.options =
+                {
+                  "closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+                }
+                toastr.error(res.messages);
+
+                setTimeout(function() {
+                  $('#btnSave').text('Simpan');
+                });
+              }
 						},
 
 						error: function(reject) {
@@ -264,21 +280,37 @@
 						},
 
 						success: function(res) {
-              setTimeout(function() {
-                $('#categoryForm')[0].reset();
-                $('#categoryModal').modal('hide');
-                $('#categoryTable').DataTable().ajax.reload();
-              });
+              if (res.success == true) {
+                setTimeout(function() {
+                  $('#categoryForm')[0].reset();
+									$('#categoryModal').modal('hide');
+									$('#categoryTable').DataTable().ajax.reload();
+                });
 
-              toastr.options =
-              {
-                "closeButton" : true,
-                "progressBar" : false,
-                "preventDuplicates": true,
-                "timeOut": "3000",
-                "positionClass": "toast-top-center"
-              }
+                toastr.options =
+                {
+                  "closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+                }
                 toastr.success(res.messages);
+              } else {
+                toastr.options =
+                {
+                  "closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+                }
+                toastr.error(res.messages);
+
+                setTimeout(function() {
+                  $('#btnSave').text('Update');
+                });
+              }
 						},
 
 						error: function(reject) {

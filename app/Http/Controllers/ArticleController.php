@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests\ArticleRequest;
-
 use Auth;
 use Carbon\Carbon;
-use File;
-use Str;
+
+use App\Services\ArticleService;
+use App\Services\CategoryService;
+
+use App\Http\Requests\ArticleRequest;
 
 use App\Models\User;
 use App\Models\Category;
@@ -17,21 +18,19 @@ use App\Models\Article;
 
 class ArticleController extends Controller
 {
+    public function __construct(
+        protected ArticleService $articleService,
+        protected CategoryService $categoryService,
+    ) { }
+
     public function index()
     {
         $data['title']  =   'List Artikel';
 
-        $articles   =   Article::join('users', 'users.id', 'articles.created_by')
-                                ->join('categories', 'categories.id', 'articles.category_id')
-                                ->select([
-                                    'articles.id', 'articles.title', 'articles.status', 'articles.slug', 'articles.updated_at',
-                                    'users.id as userId', 'users.name as userName',
-                                    'categories.id as catId', 'categories.category_name'
-                                ])->orderBy('articles.created_at', 'DESC')
-                                ->get();
-
         if (request()->ajax()) {
-            return datatables()->of($articles)
+            $articles   =   $this->articleService->getAllArticleWithUserAndCategory();
+
+            return datatables()->of($articles['data'])
                 ->addColumn('action', function($data) {
                     if ($data->userId == Auth::user()->id) {
                         if (Auth::user()->can('Edit Artikel')) {
@@ -55,7 +54,7 @@ class ArticleController extends Controller
     public function create()
     {
         $data['title']      =   'Tambah Artikel';
-        $data['category']   =   Category::where('status', true)->get();
+        $data['category']   =   $this->categoryService->getCategoryByCondition('status', true);
         $data['button']     =   'Simpan';
         $data['article']    =   '';
 
@@ -64,110 +63,57 @@ class ArticleController extends Controller
 
     public function store(ArticleRequest $request)
     {
-        // Upload Thumbnail
-        if ($request->hasFile('thumbnail')) {
-            $path       =   'uploads/articles/thumbnails';
-            $thumbnail  =   $request->thumbnail;
+        $result =   $this->articleService->saveArticle($request);
 
-            // Create folder if haven't
-            if (!File::exists($path)) {
-                File::makeDirectory($path, $mode = 0775, true, true);
-            }
-
-            $thumbnail_name =   'thumbnail-' . Str::slug($request->title) . '.' . $thumbnail->getClientOriginalExtension();
-            $thumbnail->move(public_path($path), $thumbnail_name);
-        }
-
-        $article                =   new Article;
-        $article->category_id   =   $request->category_id;
-        $article->title         =   $request->title;
-        $article->thumbnail     =   $thumbnail_name;
-        $article->content       =   $request->content;
-        $article->status        =   $request->status;
-        $article->slug          =   Str::slug($request->title);
-        $article->created_by    =   Auth::user()->id;
-        $article->updated_by    =   Auth::user()->id;
-        $article->save();
-
-        return response()->json(['messages' => 'Artikel berhasil ditambah']);
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 
     public function edit($id)
     {
         $data['title']  =   'Edit Artikel';
-        $query          =   Article::where('id', $id)
-                                    ->where('created_by', Auth::user()->id)
-                                    ->first();
+        $query          =   $this->articleService->getArticleById($id);
 
-        if (!$query) {
+        if ($query['success'] == false) {
             return view('Error.notfound', $data);
         }
 
-        $data['category']   =   Category::where('status', true)->get();
+        $data['category']   =   $this->categoryService->getCategoryByCondition('status', true);
         $data['button']     =   'Update';
-        $data['article']    =   $query;
+        $data['article']    =   $query['data'];
 
         return view('Article.form', $data);
     }
 
     public function update(ArticleRequest $request)
     {
-        $article        =   Article::findOrFail($request->article_id);
-        $thumbnail_name =   $article->thumbnail;
+        $result =   $this->articleService->updateArticle($request);
 
-        // Upload Thumbnail
-        if ($request->hasFile('thumbnail')) {
-            $path       =   'uploads/articles/thumbnails';
-            $thumbnail  =   $request->thumbnail;
-
-            // Create folder if haven't
-            if (!File::exists($path)) {
-                File::makeDirectory($path, $mode = 0775, true, true);
-            }
-
-            // Delete thumbnail if any upload other thumbnail
-            if ($article->thumbnail != NULL) {
-                File::delete('uploads/articles/thumbnails/' . $article->thumbnail);
-            }
-
-            $thumbnail_name =   'thumbnail-' . Str::slug($request->title) . '.' . $thumbnail->getClientOriginalExtension();
-            $thumbnail->move(public_path($path), $thumbnail_name);
-        }
-
-        $data   =   array(
-            'category_id'   =>  $request->category_id,
-            'title'         =>  $request->title,
-            'thumbnail'     =>  $thumbnail_name,
-            'content'       =>  $request->content,
-            'status'        =>  $request->status,
-            'slug'          =>  Str::slug($request->title),
-            'updated_by'    =>  Auth::user()->id,
-        );
-
-        Article::findOrFail($request->article_id)->update($data);
-
-        return response()->json(['messages' => 'Artikel berhasil diupdate']);
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 
     public function uploadImage(Request $request)
     {
-        $filename   =   'article_' . round(microtime(true) * 1000) . '.' . $request->file('file')->getClientOriginalExtension();
-        $path       =   $request->file('file')->storeAs('uploads/articles', $filename, 'public');
+        $result =   $this->articleService->uploadImageTinyMCE($request);
+
         return response()->json([
-            'location'  => "/storage/$path",
-            'filename'  =>  $filename,
+            'location'  =>  $result['data']['location'],
+            'filename'  =>  $result['data']['filename'],
         ]);
     }
 
     public function deleteImage(Request $request)
     {
-        $path   =   public_path($request->imagePath);
+        $result =   $this->articleService->deleteImageTinyMCE($request);
 
-        if (File::exists($path)) {
-            File::delete($path);
-            return response()->json(['message'  =>  'Gambar dihapus'], 200);
-        }
-
-        return response()->json(['message'  =>  'Gambar tidak ditemukan'], 404);
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 }

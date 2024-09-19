@@ -4,19 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Auth;
+
+use App\Services\CategoryService;
+
 use App\Http\Requests\CategoryRequest;
-
-use App\Models\Category;
-
-use Str;
 
 class CategoryController extends Controller
 {
+    public function __construct(
+        protected CategoryService $categoryService,
+    ) { }
+
     public function index()
     {
         $data['title']  =   'List Kategori';
+
         if (request()->ajax()) {
-            return datatables()->of(Category::orderBy('id')->get())
+            $categories =   $this->categoryService->getAllCategory();
+
+            return datatables()->of($categories['data'])
                 ->addColumn('action', function($data) {
                     if (Auth::user()->can('Edit Kategori')) {
                         $button =   '<button type="button" id="'.$data->id.'" class="btnEdit btn btn-warning">Edit</button>';
@@ -33,32 +40,28 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request)
     {
-        $category                   =   new Category;
-        $category->category_name    =   $request->category_name;
-        $category->status           =   $request->status;
-        $category->slug             =   Str::slug($request->category_name);
-        $category->save();
+        $result =   $this->categoryService->saveCategory($request);
 
-        return response()->json(['messages' => 'Kategori berhasil ditambah']);
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 
     public function edit($id)
     {
-        $category   =   Category::findOrFail($id);
+        $category   =   $this->categoryService->getCategoryById($id);
 
-        return response()->json(['data' => $category]);
+        return response()->json(['data' => $category['data']]);
     }
 
     public function update(CategoryRequest $request)
     {
-        $data = array(
-            'category_name' =>  $request->category_name,
-            'status'        =>  $request->status,
-            'slug'          =>  Str::slug($request->category_name),
-        );
+        $result =   $this->categoryService->updateCategory($request);
 
-        Category::findOrFail($request->category_id)->update($data);
-
-        return response()->json(['success' => true, 'messages' => 'Kategori berhasil diupdate']);
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 }

@@ -49,7 +49,7 @@
                   <label>Kategori</label>
                   <select name="category_id" id="category_id" class="form-control">
                     <option disabled selected>-- Pilih Kategori --</option>
-                    @foreach ($category as $cat)
+                    @foreach ($category['data'] as $cat)
                       <option value="{{ $cat->id }}" {{ $article ? ($article->category_id == $cat->id ? 'selected' : '') : '' }}>{{ $cat->category_name }}</option>
                     @endforeach
                   </select>
@@ -222,18 +222,30 @@
 						},
 
 						success: function(res) {
-							toastr.options =
-							{
-								"closeButton" : true,
-								"progressBar" : false,
-								"preventDuplicates": true,
-								"timeOut": "1500",
-								"positionClass": "toast-top-center"
+							if (res.success == true) {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "1500",
+									"positionClass": "toast-top-center"
+								}
+								toastr.options.onHidden = function () {
+									window.location.href = "{{ route('article.index') }}";
+								}
+								toastr.success(res.messages);
+							} else {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+								}
+								toastr.error(res.messages);
 							}
-              toastr.options.onHidden = function () {
-								window.location.href = "{{ route('article.index') }}";
-							}
-							toastr.success(res.messages);
 						},
 
 						error: function(reject) {
@@ -270,18 +282,30 @@
 						},
 
 						success: function(res) {
-							toastr.options =
-							{
-								"closeButton" : true,
-								"progressBar" : false,
-								"preventDuplicates": true,
-								"timeOut": "1500",
-								"positionClass": "toast-top-center"
+							if (res.success == true) {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+								}
+								toastr.options.onHidden = function () {
+									window.location.href = "{{ route('article.index') }}";
+								}
+								toastr.success(res.messages);
+							} else {
+								toastr.options =
+								{
+									"closeButton" : true,
+									"progressBar" : false,
+									"preventDuplicates": true,
+									"timeOut": "3000",
+									"positionClass": "toast-top-center"
+								}
+								toastr.error(res.messages);
 							}
-              toastr.options.onHidden = function () {
-								window.location.href = "{{ route('article.index') }}";
-							}
-							toastr.success(res.messages);
 						},
 
 						error: function(reject) {

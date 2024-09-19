@@ -3,22 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Auth;
+
+use App\Services\RolePermissionService;
 
 use App\Http\Requests\RoleRequest;
 
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-
 class RoleController extends Controller
 {
+    public function __construct(
+        protected RolePermissionService $rolePermissionService,
+    ) { }
+
     public function index()
     {
         $data['title']          =   'List Role';
-        $data['permissions']    =   Permission::get();
 
         if (request()->ajax()) {
-            return datatables()->of(Role::get())
+            $roles  =   $this->rolePermissionService->getAllRole();
+
+            return datatables()->of($roles['data'])
                 ->addColumn('action', function($data) {
                     if (Auth::user()->can('Edit Role')) {
                         $button =   '<a href="'.route('role.edit', $data->id).'" class="btnEdit btn btn-warning">Edit</a>';
@@ -35,7 +39,7 @@ class RoleController extends Controller
     {
         $data['title']          =   'Tambah Role';
         $data['role']           =   '';
-        $data['permissions']    =   Permission::get();
+        $data['permissions']    =   $this->rolePermissionService->getAllPermission();
         $data['button']         =   'Simpan';
 
         return view('Role.form', $data);
@@ -43,33 +47,22 @@ class RoleController extends Controller
 
     public function store(RoleRequest $request)
     {
-        DB::beginTransaction();
+        $result =   $this->rolePermissionService->saveRole($request);
 
-        try {
-            $role   =   Role::create([
-                'name' => $request->name,
-            ]);
-    
-            $permissions    =   Permission::whereIn('id', $request->permission)->get();
-            $role->syncPermissions($permissions);
-
-            DB::commit();
-            return response()->json(['messages' => 'Role berhasil ditambah']);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            // return response()->json(['errors' => $th->getMessage()], 500);
-            return response()->json(['errors' => 'Role gagal ditambah']);
-        }
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 
     public function edit($id)
     {
-        $getRole    =   Role::findOrFail($id);
+        $getRole    =   $this->rolePermissionService->getRoleById($id);
 
         $data['title']              =   'Edit Role';
-        $data['role']               =   $getRole;
-        $data['permissions']        =   Permission::get();
-        $data['rolePermissions']    =   $getRole->permissions->pluck('id')->toArray();
+        $data['role']               =   $getRole['data'];
+        $data['permissions']        =   $this->rolePermissionService->getAllPermission();
+        $data['rolePermissions']    =   $getRole['data']->permissions->pluck('id')->toArray();
         $data['button']             =   'Update';
 
         return view('Role.form', $data);
@@ -77,24 +70,11 @@ class RoleController extends Controller
 
     public function update(RoleRequest $request)
     {
-        DB::beginTransaction();
+        $result =   $this->rolePermissionService->updateRole($request);
 
-        try {
-            $role   =   Role::findOrFail($request->role_id);
-
-            $role->update([
-                'name' => $request->name
-            ]);
-
-            $permissions    =   Permission::whereIn('id', $request->permission)->get();
-            $role->syncPermissions($permissions);
-
-            DB::commit();
-            return response()->json(['messages' => 'Role berhasil diupdate']);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            // return response()->json(['errors' => $th->getMessage()], 500);
-            return response()->json(['errors' => 'Role gagal diupdate']);
-        }
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 }

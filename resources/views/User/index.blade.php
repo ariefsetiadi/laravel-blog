@@ -82,7 +82,7 @@
                   <label>Status</label>
                   <select name="role" id="role" class="form-control">
                     <option disabled selected>-- Pilih Role --</option>
-                    @foreach($roles as $role)
+                    @foreach($roles['data'] as $role)
                       <option value="{{ $role->id }}">{{ $role->name }}</option>
                     @endforeach
                   </select>
@@ -348,21 +348,37 @@
 						},
 
 						success: function(res) {
-							setTimeout(function() {
-								$('#userForm')[0].reset();
-								$('#userModal').modal('hide');
-								$('#userTable').DataTable().ajax.reload();
-							});
+              if (res.success == true) {
+                setTimeout(function() {
+                  $('#userForm')[0].reset();
+                  $('#userModal').modal('hide');
+                  $('#userTable').DataTable().ajax.reload();
+                });
 
-							toastr.options =
-							{
-								"closeButton" : true,
-								"progressBar" : false,
-								"preventDuplicates": true,
-								"timeOut": "3000",
-								"positionClass": "toast-top-center"
-							}
-							toastr.success(res.messages);
+                toastr.options =
+                {
+                  "closeButton" : true,
+                  "progressBar" : false,
+                  "preventDuplicates": true,
+                  "timeOut": "3000",
+                  "positionClass": "toast-top-center"
+                }
+                toastr.success(res.messages);
+              } else {
+                toastr.options =
+                {
+                  "closeButton" : true,
+                  "progressBar" : false,
+                  "preventDuplicates": true,
+                  "timeOut": "3000",
+                  "positionClass": "toast-top-center"
+                }
+                toastr.error(res.messages);
+
+                setTimeout(function() {
+                  $('#btnSave').text('Simpan');
+                });
+              }
 						},
 
 						error: function(reject) {
