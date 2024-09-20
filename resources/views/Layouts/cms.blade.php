@@ -112,6 +112,15 @@
 
               <li class="nav-header"></li>
 
+              @can('Update Pengaturan Website')
+              <li class="nav-item">
+                <a href="{{ route('webCon.index') }}" class="nav-link {{ (request()->segment(2) == 'website-config') ? 'active' : '' }}">
+                  <i class="nav-icon fas fa-tools"></i>
+                  <p>Pengaturan Website</p>
+                </a>
+              </li>
+              @endcan
+
               <li class="nav-item">
                 <a href="{{ route('logout') }}" class="nav-link">
                   <i class="nav-icon fas fa-sign-out-alt"></i>

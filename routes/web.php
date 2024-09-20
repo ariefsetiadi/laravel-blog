@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\WebsiteConfigController;
 
 use App\Http\Controllers\Guest\DashboardController;
 use App\Http\Controllers\Guest\ArticleController as GuestArticleController;
@@ -71,6 +72,11 @@ Route::middleware(['auth'])->group(function () {
 
             Route::post('/uploadImage', [ArticleController::class, 'uploadImage'])->middleware('permission:Tambah Artikel|Edit Artikel')->name('article.uploadImage');
             Route::post('/deleteImage', [ArticleController::class, 'deleteImage'])->middleware('permission:Tambah Artikel|Edit Artikel')->name('article.deleteImage');
+        });
+
+        Route::prefix('website-config')->group(function () {
+            Route::get('/', [WebsiteConfigController::class, 'index'])->middleware('permission:Update Pengaturan Website')->name('webCon.index');
+            Route::post('/save', [WebsiteConfigController::class, 'save'])->middleware('permission:Update Pengaturan Website')->name('webCon.save');
         });
     });
 });

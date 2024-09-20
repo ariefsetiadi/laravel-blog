@@ -12,10 +12,6 @@ use App\Services\CategoryService;
 
 use App\Http\Requests\ArticleRequest;
 
-use App\Models\User;
-use App\Models\Category;
-use App\Models\Article;
-
 class ArticleController extends Controller
 {
     public function __construct(

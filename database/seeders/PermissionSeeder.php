@@ -29,6 +29,7 @@ class PermissionSeeder extends Seeder
             'Tambah Artikel',
             'Edit Artikel',
             'Approve Artikel',
+            'Update Pengaturan Website',
         ];
 
         foreach ($permissions as $permission) {
