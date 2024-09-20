@@ -25,6 +25,8 @@ use App\Http\Controllers\Guest\ArticleController as GuestArticleController;
 */
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/contact', [DashboardController::class, 'viewContact'])->name('viewContact');
+
 Route::prefix('article')->group(function () {
     Route::get('/', [GuestArticleController::class, 'index'])->name('guest.article.index');
     Route::get('/read/{year}/{month}/{slug}', [GuestArticleController::class, 'read'])->name('guest.article.read')->middleware('trackSession');

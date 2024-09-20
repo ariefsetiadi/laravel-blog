@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>{{ $title . ' | ' . config('app.name') }}</title>
+    <title>{{ $title . ' | ' . ($sharedData ? $sharedData->name : config('app.name')) }}</title>
 
     <meta name="description" content="">
     <meta name="keywords" content="">
@@ -15,8 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
     <!-- Favicons -->
-    <link href="{{ asset('assets/img/favicon.png') }}" rel="icon">
-    <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+    <link rel="icon" href="{{ $sharedData && $sharedData->icon ? asset('uploads/website/' . $sharedData->icon) : asset('assets/img/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ $sharedData && $sharedData->icon ? asset('uploads/website/' . $sharedData->icon) : asset('assets/img/apple-touch-icon.png') }}">
 
     <!-- Vendor CSS Files -->
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -39,17 +39,23 @@
   </head>
 
   <body class="index-page">
+    @php
+      $no = 1;
+      $sosmed = $sharedData ? ($sharedData->social_media ? json_decode($sharedData->social_media, true) : []) : [];
+      $phones = $sharedData ? ($sharedData->phone ? json_decode($sharedData->phone, true) : []) : [];
+    @endphp
+
     <header id="header" class="header d-flex align-items-center sticky-top">
       <div class="container position-relative d-flex align-items-center justify-content-between">
         <a href="{{ route('dashboard') }}" class="logo d-flex align-items-center me-auto me-xl-0">
           <!-- Uncomment the line below if you also wish to use an image logo -->
           <!-- <img src="assets/img/logo.png" alt=""> -->
-          <h1 class="sitename">{{ config('app.name') }}</h1>
+          <h1 class="sitename">{{ $sharedData ? $sharedData->name : config('app.name') }}</h1>
         </a>
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="{{ route('dashboard') }}" class="active">Home</a></li>
+            <li><a href="{{ route('dashboard') }}" class="{{ (request()->segment(1) == 'home') ? 'active' : '' }}">Home</a></li>
             <li><a href="#">About</a></li>
             <li><a href="#">Single Post</a></li>
             <li class="dropdown">
@@ -72,16 +78,16 @@
                 <li><a href="category.html">Category 4</a></li>
               </ul>
             </li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="{{ route('viewContact') }}" class="{{ (request()->segment(1) == 'contact') ? 'active' : '' }}">Contact</a></li>
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
         <div class="header-social-links">
-          <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>
-          <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+          <a href="{{ $sosmed['facebook'] }}" class="facebook" target="_blank"><i class="bi bi-facebook"></i></a>
+          <a href="{{ $sosmed['instagram'] }}" class="instagram" target="_blank"><i class="bi bi-instagram"></i></a>
+          <a href="{{ $sosmed['linkedin'] }}" class="linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
+          <a href="{{ $sosmed['twitter'] }}" class="twitter" target="_blank"><i class="bi bi-twitter-x"></i></a>
         </div>
       </div>
     </header>
@@ -99,19 +105,39 @@
         <div class="row gy-4">
           <div class="col-lg-4 col-md-6 footer-about">
             <a href="{{ route('dashboard') }}" class="logo d-flex align-items-center">
-              <span class="sitename">{{ config('app.name') }}</span>
+              <span class="sitename">{{ $sharedData ? $sharedData->name : config('app.name') }}</span>
             </a>
             <div class="footer-contact pt-3">
-              <p>A108 Adam Street</p>
-              <p>New York, NY 535022</p>
-              <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
-              <p><strong>Email:</strong> <span>info@example.com</span></p>
+              <p class="mb-3">
+                <strong>Address :</strong> <span>{{ $sharedData ? ($sharedData->address ?? '-') : '-' }}</span>
+              </p>
+
+              @if ($sharedData && isset($sharedData->phone))
+                @foreach ($phones as $phone)
+                  <p class="mb-3">
+                    <strong>Phone {{ $no++ }} :</strong> <span>{{ $phone }}</span>
+                  </p>
+                @endforeach
+              @else
+                <p class="mb-3">
+                  <strong>Phone :</strong> <span>-</span>
+                </p>
+              @endif
+
+              <p class="mb-3">
+                @if ($sharedData)
+                  <strong>Email :</strong> <a class="text-white" href="mailto:{{ $sharedData->email }}"><span>{{ $sharedData->email }}</span></a>
+                @else
+                  <strong>Email :</strong> <span>-</span>
+                @endif
+              </p>
             </div>
+
             <div class="social-links d-flex mt-4">
-              <a href=""><i class="bi bi-twitter-x"></i></a>
-              <a href=""><i class="bi bi-facebook"></i></a>
-              <a href=""><i class="bi bi-instagram"></i></a>
-              <a href=""><i class="bi bi-linkedin"></i></a>
+              <a href="{{ $sosmed['facebook'] }}" target="_blank"><i class="bi bi-facebook"></i></a>
+              <a href="{{ $sosmed['instagram'] }}" target="_blank"><i class="bi bi-instagram"></i></a>
+              <a href="{{ $sosmed['linkedin'] }}" target="_blank"><i class="bi bi-linkedin"></i></a>
+              <a href="{{ $sosmed['twitter'] }}" target="_blank"><i class="bi bi-twitter-x"></i></a>
             </div>
           </div>
 
@@ -163,7 +189,7 @@
       </div>
 
       <div class="container copyright text-center mt-4">
-        <p>© <span>Copyright</span> <strong class="px-1 sitename">{{ config('app.name') }}</strong> <span>All Rights Reserved</span></p>
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">{{ $sharedData ? $sharedData->name : config('app.name') }}</strong> <span>All Rights Reserved</span></p>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->
           <!-- You can delete the links only if you've purchased the pro version. -->

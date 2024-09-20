@@ -50,4 +50,11 @@ class DashboardController extends Controller
 
         return view('Guest.dashboard', $data);
     }
+
+    public function viewContact()
+    {
+        $data['title']  =   'Contact';
+
+        return view('Guest.contact', $data);
+    }
 }
