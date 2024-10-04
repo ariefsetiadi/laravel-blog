@@ -59,8 +59,8 @@ class WebsiteConfigService {
 
         WebsiteConfig::create([
           'name'          =>  $data->name,
-          'icon'          =>  $icon_name,
-          'description'   =>  $data->description,
+          'icon'          =>  $file['data'],
+          'description'   =>  $icon_name,
           'phone'         =>  json_encode($data->phone),
           'email'         =>  strtolower($data->email),
           'social_media'  =>  json_encode($sosmed),
