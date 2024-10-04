@@ -38,10 +38,14 @@ Route::middleware(['guest'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->middleware(['checkDefaultPasswordUser'])->name('home');
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::prefix('cms')->group(function () {
+    // Change Password
+    Route::get('/change-password', [AuthController::class, 'viewPassword'])->name('viewPassword');
+    Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('updatePassword');
+
+    Route::prefix('cms')->middleware(['checkDefaultPasswordUser'])->group(function () {
         Route::prefix('role')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->middleware('permission:List Role')->name('role.index');
             Route::get('/create', [RoleController::class, 'create'])->middleware('permission:Tambah Role')->name('role.create');

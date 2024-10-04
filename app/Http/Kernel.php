@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'trackSession' => \App\Http\Middleware\TrackSession::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'checkDefaultPasswordUser' => \App\Http\Middleware\CheckDefaultPasswordUser::class,
     ];
 }

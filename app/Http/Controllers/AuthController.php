@@ -3,14 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\ChangePasswordRequest;
 
 use Auth;
 use Hash;
 
 use App\Models\User;
 
+use App\Services\UserService;
+
 class AuthController extends Controller
 {
+    public function __construct(
+        protected UserService $userService,
+    ) { }
+
     public function getLogin()
     {
         return view('Auth.login');
@@ -42,6 +49,23 @@ class AuthController extends Controller
             Auth::logout();
             return redirect()->route('login')->with(['error' => 'Alamat Email atau Password salah']);
         }
+    }
+
+    public function viewPassword()
+    {
+        $data['title']  =   'Ganti Password';
+
+        return view('Auth.changePassword', $data);
+    }
+
+    public function updatePassword(ChangePasswordRequest $request)
+    {
+        $result =   $this->userService->changePassword($request);
+
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
     }
 
     public function logout()

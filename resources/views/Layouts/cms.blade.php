@@ -66,7 +66,7 @@
           <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
               <li class="nav-item">
-                <a href="{{ route('home') }}" class="nav-link {{ (request()->segment(2) == 'home') ? 'active' : '' }}">
+                <a href="{{ route('home') }}" class="nav-link {{ (request()->segment(1) == 'home') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-home"></i>
                   <p>Beranda</p>
                 </a>
@@ -142,9 +142,18 @@
             <div class="row mb-2">
               <div class="col-sm-6">
                 <h1 class="m-0">{{ $title }}</h1>
-              </div><!-- /.col -->
-            </div><!-- /.row -->
-          </div><!-- /.container-fluid -->
+              </div>
+              <!-- /.col -->
+            </div>
+            <!-- /.row -->
+
+            @if(\Session::get('error'))
+              <div class="alert alert-danger alert-dismissible text-center">
+                <h3>{{ \Session::get('error') }}</h3>
+              </div>
+            @endif
+          </div>
+          <!-- /.container-fluid -->
         </div>
         <!-- /.content-header -->
 

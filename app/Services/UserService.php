@@ -100,7 +100,8 @@ class UserService {
 
       if ($user && $user->id != Auth::user()->id) {
         $arr  = array(
-          'password'  =>  Hash::make($data['password']),
+          'password'          =>  Hash::make($data['password']),
+          'default_password'  =>  true,
         );
 
         User::findOrFail($data['userReset_id'])->update($arr);
@@ -108,6 +109,24 @@ class UserService {
       return responseSuccess($user, 200, 'Reset Password User berhasil');
     } catch (\Throwable $th) {
       return responseFailed(null, 500, 'Reset Password User gagal');
+    }
+  }
+
+  public function changePassword($data) {
+    try {
+      $user = User::findOrFail(Auth::user()->id);
+
+      if ($user && $user->id) {
+        $arr  = array(
+          'password'          =>  Hash::make($data['password']),
+          'default_password'  =>  false,
+        );
+
+        User::findOrFail(Auth::user()->id)->update($arr);
+      }
+      return responseSuccess($user, 200, 'Ganti Password berhasil');
+    } catch (\Throwable $th) {
+      return responseFailed(null, 500, 'Ganti Password gagal');
     }
   }
 }
