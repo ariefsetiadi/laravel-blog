@@ -104,7 +104,7 @@
               @can('List Artikel')
               <li class="nav-item">
                 <a href="{{ route('article.index') }}" class="nav-link {{ (request()->segment(2) == 'article') ? 'active' : '' }}">
-                  <i class="nav-icon fas fa-file"></i>
+                  <i class="nav-icon fas fa-newspaper"></i>
                   <p>Artikel</p>
                 </a>
               </li>
