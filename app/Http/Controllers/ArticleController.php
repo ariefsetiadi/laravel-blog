@@ -11,6 +11,7 @@ use App\Services\ArticleService;
 use App\Services\CategoryService;
 
 use App\Http\Requests\ArticleRequest;
+use App\Http\Requests\ReviewArticleRequest;
 
 class ArticleController extends Controller
 {
@@ -24,19 +25,37 @@ class ArticleController extends Controller
         $data['title']  =   'List Artikel';
 
         if (request()->ajax()) {
-            $articles   =   $this->articleService->getAllArticleWithUserAndCategory();
+            if (Auth::user()->can('Review Artikel')) {
+                $articles   =   $this->articleService->getAllArticleWithUserAndCategory();
+            } else {
+                $articles   =   $this->articleService->getAllArticleWithUserAndCategoryByAuth();
+            }
 
             return datatables()->of($articles['data'])
                 ->addColumn('action', function($data) {
-                    if ($data->userId == Auth::user()->id) {
-                        if (Auth::user()->can('Edit Artikel')) {
-                            $button =   '<a href="'.route('article.edit', $data->id).'" class="btnEdit btn btn-warning">Edit</a>';
+                    $button = '';
 
-                            return $button;
+                    if ($data->userId == Auth::user()->id) {
+                        if (Auth::user()->can('Edit Artikel') && $data->status != 1) {
+                            $button =   '<a href="'.route('article.edit', $data->id).'" class="btnEdit btn btn-warning">Edit</a>';
                         }
+                    } else if (Auth::user()->can('Review Artikel') && $data->status == 1) {
+                        $button =   '<a href="'.route('article.review', $data->id).'" class="btnReview btn btn-success">Review</a>';
                     }
+
+                    return $button;
                 })->editColumn('status', function($data) {
-                    return $data->status == TRUE ? '<span class="badge badge-success">Publish</span>' : '<span class="badge badge-danger">Draft</span>';
+                    if ($data->status == 0) {
+                        $status = '<span class="badge badge-secondary">Draft</span>';
+                    } else if ($data->status == 1) {
+                        $status = '<span class="badge badge-warning">On Review</span>';
+                    } else if ($data->status == 2) {
+                        $status = '<span class="badge badge-danger">Revise</span>';
+                    } else if ($data->status == 3) {
+                        $status = '<span class="badge badge-success">Publish</span>';
+                    }
+
+                    return $status;
                 })->editColumn('updated_at', function($data) {
                     Carbon::setLocale('id');
 
@@ -51,7 +70,7 @@ class ArticleController extends Controller
     {
         $data['title']      =   'Tambah Artikel';
         $data['category']   =   $this->categoryService->getCategoryByCondition('status', true);
-        $data['button']     =   'Simpan';
+        $data['button']     =   'Submit';
         $data['article']    =   '';
 
         return view('Article.form', $data);
@@ -77,7 +96,7 @@ class ArticleController extends Controller
         }
 
         $data['category']   =   $this->categoryService->getCategoryByCondition('status', true);
-        $data['button']     =   'Update';
+        $data['button']     =   'Submit';
         $data['article']    =   $query['data'];
 
         return view('Article.form', $data);
@@ -86,6 +105,32 @@ class ArticleController extends Controller
     public function update(ArticleRequest $request)
     {
         $result =   $this->articleService->updateArticle($request);
+
+        return response()->json([
+            'success'   =>  $result['success'],
+            'messages'  =>  $result['message'],
+        ]);
+    }
+
+    public function review($id)
+    {
+        $data['title']  =   'Review Artikel';
+        $query          =   $this->articleService->getReviewArticle($id);
+
+        if ($query['success'] == false) {
+            return view('Error.notfound', $data);
+        }
+
+        $data['article']    =   $query['data'];
+        $data['btnRevise']  =   'Revise';
+        $data['btnPublish'] =   'Publish';
+
+        return view('Article.review', $data);
+    }
+
+    public function updateReview(ReviewArticleRequest $request)
+    {
+        $result =   $this->articleService->updateReviewArticle($request);
 
         return response()->json([
             'success'   =>  $result['success'],

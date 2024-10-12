@@ -26,7 +26,7 @@ class ArticleController extends Controller
     {
         $articles   =   Article::join('users', 'users.id', 'articles.created_by')
                                 ->join('categories', 'categories.id', 'articles.category_id')
-                                ->where('articles.status', true)
+                                ->where('articles.status', 3)
                                 ->select([
                                     'articles.title', 'articles.thumbnail', 'articles.content', 'articles.slug', 'articles.created_at',
                                     'users.name as userName',
@@ -60,6 +60,7 @@ class ArticleController extends Controller
     {
         $query  =   Article::whereYear('articles.created_at', $year)
                             ->whereMonth('articles.created_at', $month)
+                            ->where('articles.status', 3)
                             ->where('articles.slug', $slug)
                             ->first();
 
@@ -81,6 +82,7 @@ class ArticleController extends Controller
                                 ->selectRaw('COUNT(page_views.id) as totalView')
                                 ->whereYear('articles.created_at', $year)
                                 ->whereMonth('articles.created_at', $month)
+                                ->where('articles.status', 3)
                                 ->where('articles.slug', $slug)
                                 ->groupBy([
                                     'articles.id',
@@ -98,6 +100,7 @@ class ArticleController extends Controller
         $data['title']      =   $article->title;
         $data['article']    =   $article;
         $data['relateds']   =   Article::where('category_id', $article->category_id)
+                                        ->where('status', 3)
                                         ->where('id', '!=', $article->id)
                                         ->select([
                                             'articles.title', 'articles.thumbnail', 'articles.slug', 'articles.created_at'

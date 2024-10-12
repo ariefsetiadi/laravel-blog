@@ -16,8 +16,11 @@ class Article extends Model
         'content',
         'status',
         'slug',
+        'notes',
         'created_by',
         'updated_by',
+        'published_by',
+        'published_at',
     ];
 
     public function category()

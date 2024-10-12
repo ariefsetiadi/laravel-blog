@@ -75,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', [ArticleController::class, 'store'])->middleware('permission:Tambah Artikel')->name('article.store');
             Route::get('/edit/{id}', [ArticleController::class, 'edit'])->middleware('permission:Edit Artikel')->name('article.edit');
             Route::post('/update', [ArticleController::class, 'update'])->middleware('permission:Edit Artikel')->name('article.update');
+            Route::get('/review/{id}', [ArticleController::class, 'review'])->middleware('permission:Review Artikel')->name('article.review');
+            Route::post('/update-review', [ArticleController::class, 'updateReview'])->middleware('permission:Review Artikel')->name('article.updateReview');
 
             Route::post('/uploadImage', [ArticleController::class, 'uploadImage'])->middleware('permission:Tambah Artikel|Edit Artikel')->name('article.uploadImage');
             Route::post('/deleteImage', [ArticleController::class, 'deleteImage'])->middleware('permission:Tambah Artikel|Edit Artikel')->name('article.deleteImage');

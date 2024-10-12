@@ -31,7 +31,7 @@ class RoleSeeder extends Seeder
             'List Artikel',
             'Tambah Artikel',
             'Edit Artikel',
-            'Approve Artikel',
+            'Review Artikel',
             'Update Pengaturan Website',
         ];
 

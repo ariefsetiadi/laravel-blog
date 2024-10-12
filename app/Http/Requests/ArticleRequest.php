@@ -33,7 +33,6 @@ class ArticleRequest extends FormRequest
             'thumbnail.*'   =>  'mimes:jpg,jpeg,png,webp',
             'category_id'   =>  'required|exists:categories,id',
             'content'       =>  'required',
-            'status'        =>  'required|in:0,1',
         ];
     }
 
@@ -49,8 +48,6 @@ class ArticleRequest extends FormRequest
             'category_id.required'  =>  'Kategori wajib dipilih',
             'category_id.exists'    =>  'Kategori tidak valid',
             'content.required'      =>  'Konten wajib diisi',
-            'status.required'       =>  'Status wajib diisi',
-            'status.in'             =>  'Status tidak valid',
         ];
     }
 }

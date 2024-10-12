@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         $query  =   Article::join('users', 'users.id', 'articles.created_by')
                             ->join('categories', 'categories.id', 'articles.category_id')
-                            ->where('articles.status', true)
+                            ->where('articles.status', 3)
                             ->select([
                                 'articles.title', 'articles.thumbnail', 'articles.content', 'articles.slug', 'articles.created_at',
                                 'users.name as userName',

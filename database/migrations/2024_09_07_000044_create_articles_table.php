@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title')->unique();
             $table->string('thumbnail');
             $table->text('content')->nullable();
-            $table->boolean('status'); // 0: Draft, 1: Publish
+            $table->boolean('status')->default(true); // 0: Draft, 1: Publish
             $table->string('slug');
             $table->bigInteger('created_by')->unsigned();
             $table->bigInteger('updated_by')->unsigned();

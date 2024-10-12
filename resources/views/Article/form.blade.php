@@ -27,6 +27,12 @@
           <div class="col-md-9">
             <div class="card">
               <div class="card-body">
+                @if($article && $article->status == 2)
+                  <div class="alert alert-danger alert-dismissible text-center">
+                    <h4>{{ $article->notes }}</h4>
+                  </div>
+                @endif
+
                 <div class="form-group mb-3">
                   <label>Judul Artikel</label>
                   <input type="text" name="title" id="title" class="form-control" value="{{ $article ? $article->title : '' }}" placeholder="Judul Artikel">
@@ -57,16 +63,6 @@
                 </div>
 
                 <div class="form-group mb-3">
-                  <label>Status</label>
-                  <select name="status" id="status" class="form-control">
-                    <option disabled selected>-- Pilih Status --</option>
-                    <option value="0" {{ $article ? ($article->status == false ? 'selected' : '') : '' }}>Draft</option>
-                    <option value="1" {{ $article ? ($article->status == true ? 'selected' : '') : '' }}>Publish</option>
-                  </select>
-                  <div class="text-danger" id="status_error"></div>
-                </div>
-
-                <div class="form-group mb-3">
                   <label>Thumbnail</label>
                   <input type="file" name="thumbnail" id="thumbnail" class="form-control" accept=".jpg, .jpeg, .png, .webp" onchange="previewImage(event)">
                   <div class="text-danger" id="thumbnail_error"></div>
@@ -81,7 +77,10 @@
               </center>
 
                 <div class="modal-footer mb-3">
-                  <button type="submit" class="btn btn-primary" id="btnSave">{{ $button  }}</button>
+                  @if (!$article || ($article && $article->status == 0))
+                    <button type="button" class="btn btn-secondary" id="btnDraft">Draft</button>
+                  @endif
+                  <button type="button" class="btn btn-primary" id="btnSubmit">{{ $button }}</button>
                 </div>
               </div>
             </div>
@@ -197,129 +196,91 @@
         });
       }
 
+      let action = '';
+      let buttonClicked;
+
+      $('#btnDraft').click(function () {
+        action = 'Draft';
+        buttonClicked = $(this);
+        $('#articleForm').submit();
+      });
+
+      $('#btnSubmit').click(function () {
+        action = 'Submit';
+        buttonClicked = $(this);
+        $('#articleForm').submit();
+      });
+
       // Submit data
 			$('#articleForm').on('submit', function (e) {
 				e.preventDefault();
 
-				if ($('#btnSave').text() == 'Simpan') {
-					$('#title_error').text();
-					$('#content_error').text();
-					$('#category_id_error').text();
-					$('#status_error').text();
-					$('#thumbnail_error').text();
+        var content = tinyMCE.get('content').getContent();
+        $('#content').val(content);
 
-					$.ajax({
-						url: "{{ route('article.store') }}",
-						method: "POST",
-						data: new FormData(this),
-						contentType: false,
-						cache: false,
-						processData: false,
-						dataType:"json",
+				$('#title_error').text();
+        $('#content_error').text();
+        $('#category_id_error').text();
+        $('#thumbnail_error').text();
 
-						beforeSend: function() {
-              $('#btnSave').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
-						},
+        var formDatas = new FormData(this);
+        formDatas.append('action', action);
 
-						success: function(res) {
-							if (res.success == true) {
-								toastr.options =
-								{
-									"closeButton" : true,
-									"progressBar" : false,
-									"preventDuplicates": true,
-									"timeOut": "1500",
-									"positionClass": "toast-top-center"
-								}
-								toastr.options.onHidden = function () {
-									window.location.href = "{{ route('article.index') }}";
-								}
-								toastr.success(res.messages);
-							} else {
-								toastr.options =
-								{
-									"closeButton" : true,
-									"progressBar" : false,
-									"preventDuplicates": true,
-									"timeOut": "3000",
-									"positionClass": "toast-top-center"
-								}
-								toastr.error(res.messages);
-							}
-						},
+        var articleId = $('#article_id').val();
+        var redirectUrl = articleId ? "{{ route('article.update') }}" : "{{ route('article.store') }}";
 
-						error: function(reject) {
-							setTimeout(function() {
-								$('#btnSave').text('Simpan');
-								var response = $.parseJSON(reject.responseText);
-								$.each(response.errors, function (key, val) {
-									$('#' + key + "_error").text(val[0]);
-									$('#' + key).addClass('is-invalid');
-								});
-							});
-						}
-					});
-				}
+        $.ajax({
+          url: redirectUrl,
+          method: "POST",
+          data: formDatas,
+          contentType: false,
+          cache: false,
+          processData: false,
+          dataType:"json",
 
-				if ($('#btnSave').text() == 'Update') {
-					$('#title_error').text();
-					$('#content_error').text();
-					$('#category_id_error').text();
-					$('#status_error').text();
-					$('#thumbnail_error').text();
+          beforeSend: function() {
+            buttonClicked.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Diproses...');
+          },
 
-					$.ajax({
-						url: "{{ route('article.update') }}",
-						method: "POST",
-						data: new FormData(this),
-						contentType: false,
-						cache: false,
-						processData: false,
-						dataType:"json",
+          success: function(res) {
+            if (res.success == true) {
+              toastr.options =
+              {
+                "closeButton" : true,
+                "progressBar" : false,
+                "preventDuplicates": true,
+                "timeOut": "1500",
+                "positionClass": "toast-top-center"
+              }
+              toastr.options.onHidden = function () {
+                window.location.href = "{{ route('article.index') }}";
+              }
+              toastr.success(res.messages);
+            } else {
+              toastr.options =
+              {
+                "closeButton" : true,
+                "progressBar" : false,
+                "preventDuplicates": true,
+                "timeOut": "3000",
+                "positionClass": "toast-top-center"
+              }
+              toastr.error(res.messages);
+            }
+          },
 
-						beforeSend: function() {
-							$('#btnSave').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
-						},
-
-						success: function(res) {
-							if (res.success == true) {
-								toastr.options =
-								{
-									"closeButton" : true,
-									"progressBar" : false,
-									"preventDuplicates": true,
-									"timeOut": "3000",
-									"positionClass": "toast-top-center"
-								}
-								toastr.options.onHidden = function () {
-									window.location.href = "{{ route('article.index') }}";
-								}
-								toastr.success(res.messages);
-							} else {
-								toastr.options =
-								{
-									"closeButton" : true,
-									"progressBar" : false,
-									"preventDuplicates": true,
-									"timeOut": "3000",
-									"positionClass": "toast-top-center"
-								}
-								toastr.error(res.messages);
-							}
-						},
-
-						error: function(reject) {
-							setTimeout(function() {
-								$('#btnSave').text('Update');
-								var response = $.parseJSON(reject.responseText);
-								$.each(response.errors, function (key, val) {
-									$('#' + key + "_error").text(val[0]);
-									$('#' + key).addClass('is-invalid');
-								});
-							});
-						}
-					});
-				}
+          error: function(reject) {
+            setTimeout(function() {
+              $('#btnDraft').text('Draft');
+              $('#btnSubmit').text('Submit');
+              var response = $.parseJSON(reject.responseText);
+              $.each(response.errors, function (key, val) {
+                $('#' + key + "_error").text(val[0]);
+                $('#' + key).addClass('is-invalid');
+              });
+            });
+          }
+        });
 			});
     });
   </script>
