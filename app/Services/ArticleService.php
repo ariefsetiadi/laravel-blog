@@ -24,7 +24,7 @@ class ArticleService {
                         // Menampilkan artikel yang ditulis oleh user yang sedang login
                         $query->where('articles.created_by', Auth::id())
                               ->orWhere(function ($subQuery) {
-                                  // Menampilkan artikel yang ditulis oleh user lain yang tidak berstatus Draft
+                                  // Menampilkan artikel yang ditulis oleh user lain yang tidak berstatus Draft atau Revise
                                   $subQuery->where('articles.created_by', '!=', Auth::id())
                                             ->where('articles.status', '!=', 0)
                                             ->where('articles.status', '!=', 2);
@@ -255,8 +255,7 @@ class ArticleService {
         return responseSuccess($article, 200, 'Artikel berhasil direview');
       }
     } catch (\Throwable $th) {
-      // return responseFailed(null, 500, 'Artikel gagal direview');
-      return responseFailed(null, 500, $th);
+      return responseFailed(null, 500, 'Artikel gagal direview');
     }
   }
 
