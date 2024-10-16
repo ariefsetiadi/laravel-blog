@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('platform')->nullable();         //  Operating System
             $table->string('browser')->nullable();          //  Browser Name
             $table->integer('total_page')->default(1);
-            $table->timestamp('first_active_at');
-            $table->timestamp('last_active_at');
+            $table->timestamp('first_active_at')->nullable();
+            $table->timestamp('last_active_at')->nullable();
         });
     }
 

@@ -84,10 +84,10 @@
         </nav>
 
         <div class="header-social-links">
-          <a href="{{ $sosmed['facebook'] }}" class="facebook" target="_blank"><i class="bi bi-facebook"></i></a>
-          <a href="{{ $sosmed['instagram'] }}" class="instagram" target="_blank"><i class="bi bi-instagram"></i></a>
-          <a href="{{ $sosmed['linkedin'] }}" class="linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
-          <a href="{{ $sosmed['twitter'] }}" class="twitter" target="_blank"><i class="bi bi-twitter-x"></i></a>
+          <a href="{{ $sosmed['facebook'] ?? '' }}" class="facebook" target="_blank"><i class="bi bi-facebook"></i></a>
+          <a href="{{ $sosmed['instagram'] ?? '' }}" class="instagram" target="_blank"><i class="bi bi-instagram"></i></a>
+          <a href="{{ $sosmed['linkedin'] ?? '' }}" class="linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
+          <a href="{{ $sosmed['twitter'] ?? '' }}" class="twitter" target="_blank"><i class="bi bi-twitter-x"></i></a>
         </div>
       </div>
     </header>
@@ -134,10 +134,10 @@
             </div>
 
             <div class="social-links d-flex mt-4">
-              <a href="{{ $sosmed['facebook'] }}" target="_blank"><i class="bi bi-facebook"></i></a>
-              <a href="{{ $sosmed['instagram'] }}" target="_blank"><i class="bi bi-instagram"></i></a>
-              <a href="{{ $sosmed['linkedin'] }}" target="_blank"><i class="bi bi-linkedin"></i></a>
-              <a href="{{ $sosmed['twitter'] }}" target="_blank"><i class="bi bi-twitter-x"></i></a>
+              <a href="{{ $sosmed['facebook'] ?? '' }}" target="_blank"><i class="bi bi-facebook"></i></a>
+              <a href="{{ $sosmed['instagram'] ?? '' }}" target="_blank"><i class="bi bi-instagram"></i></a>
+              <a href="{{ $sosmed['linkedin'] ?? '' }}" target="_blank"><i class="bi bi-linkedin"></i></a>
+              <a href="{{ $sosmed['twitter'] ?? '' }}" target="_blank"><i class="bi bi-twitter-x"></i></a>
             </div>
           </div>
 
